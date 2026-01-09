@@ -5,28 +5,31 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-let keys = []; // banco simples em memória
+// Banco simples em memória (pode virar banco depois)
+let keys = [];
 
 function genKey(){
   return Math.random().toString(36).slice(2,6).toUpperCase() + '-' +
          Math.random().toString(36).slice(2,6).toUpperCase();
 }
 
-// gerar key
+// 🔑 GERAR KEY (ADMIN)
 app.post('/keys', (req,res)=>{
   const key = genKey();
-  keys.push({ key, used:false });
+  keys.push({ key });
   res.json({ key });
 });
 
-// validar key
+// ✅ VALIDAR KEY (REUTILIZÁVEL / MULTI-DISPOSITIVO)
 app.post('/validate', (req,res)=>{
   const { key } = req.body;
-  const found = keys.find(k => k.key === key && !k.used);
-  if(!found) return res.json({ ok:false });
-  found.used = true; // uso único
+  const exists = keys.find(k => k.key === key);
+  if(!exists){
+    return res.json({ ok:false });
+  }
+  // NÃO consome, NÃO bloqueia
   res.json({ ok:true });
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, ()=>console.log('Servidor Seven_C7 online'));
+app.listen(PORT, ()=>console.log('Seven_C7 Server ONLINE'));
